@@ -1,0 +1,38 @@
+name: JYSK Notification
+
+on:
+    workflow_dispatch:
+    schedule:
+        - cron: '45 10 * * *' # 11:45 AM Warsaw time (CET/CEST)
+    push:
+        branches:
+            - main
+    pull_request:
+        branches:
+            - main
+
+jobs:
+
+    test:
+        runs-on: ubuntu-latest
+
+        steps:
+        - name: Checkout repository
+          uses: actions/checkout@v2
+
+        - name: Setup Node.js
+          uses: actions/setup-node@v2
+          with:
+            node-version: '22'
+
+        - name: Install dependencies
+          run: npm install
+
+        - name: Install Playwright Browsers
+          run: npx playwright install
+
+        - name: Run Playwright tests
+          env:
+            TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+            TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          run: npx playwright test
